@@ -4,6 +4,12 @@
   <meta charset="utf-8">
   
   
+  <meta name="description" content="第三方登录（oauth）整体流程
+A 网站让用户跳转到 第三方网站（比如木犀通行证）。
+木犀通行证 要求用户登录，然后询问”A 网站要求获得 xx 权限，你是否同意？”
+用户同意，木犀通行证 就会重定向回 A 网站，同时发回一个授权码（auth-code）。
+A 网站使用授权码，向 木犀通行证 请求" />
+  
 
   
   
@@ -11,15 +17,17 @@
   
   
   
-  <title>关于auth登录 | Hexo</title>
+  <title>关于oauth登录 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="article">
-<meta property="og:title" content="关于auth登录">
+  <meta name="description" content="第三方登录（oauth）整体流程 A 网站让用户跳转到 第三方网站（比如木犀通行证）。 木犀通行证 要求用户登录，然后询问”A 网站要求获得 xx 权限，你是否同意？” 用户同意，木犀通行证 就会重定向回 A 网站，同时发回一个授权码（auth-code）。 A 网站使用授权码，向 木犀通行证 请求令牌。 木犀通行证 返回令牌. A 网站使用令牌，进一步拿到token。  具体实现第三方网站（通行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于oauth登录">
 <meta property="og:url" content="http://example.com/2021/10/14/auth/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="第三方登录（oauth）整体流程 A 网站让用户跳转到 第三方网站（比如木犀通行证）。 木犀通行证 要求用户登录，然后询问”A 网站要求获得 xx 权限，你是否同意？” 用户同意，木犀通行证 就会重定向回 A 网站，同时发回一个授权码（auth-code）。 A 网站使用授权码，向 木犀通行证 请求令牌。 木犀通行证 返回令牌. A 网站使用令牌，进一步拿到token。  具体实现第三方网站（通行">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-10-14T12:59:55.736Z">
-<meta property="article:modified_time" content="2021-10-14T12:59:55.736Z">
+<meta property="article:published_time" content="2021-10-14T13:46:38.393Z">
+<meta property="article:modified_time" content="2021-10-14T13:46:38.393Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -73,26 +81,55 @@
         
   
     <h1 class="entry-title article-title">
-      关于auth登录
+      关于oauth登录
     </h1>
   
 
         
         <div class="comments-link">
             
-            <a href="javascript:void(0);" data-url="http://example.com/2021/10/14/auth/" data-id="ckuqz00or00066pv1dn3w57mv" class="leave-reply bdsharebuttonbox" data-cmd="more">Share</a>
+            <a href="javascript:void(0);" data-url="http://example.com/2021/10/14/auth/" data-id="ckuqzzhju0005m8v1c4ic5zi0" class="leave-reply bdsharebuttonbox" data-cmd="more">Share</a>
         </div><!-- .comments-link -->
       </header><!-- .entry-header -->
 
     <div class="entry-content">
       
-        
+        <h1 id="第三方登录（oauth）"><a href="#第三方登录（oauth）" class="headerlink" title="第三方登录（oauth）"></a>第三方登录（oauth）</h1><h3 id="整体流程"><a href="#整体流程" class="headerlink" title="整体流程"></a>整体流程</h3><ol>
+<li>A 网站让用户跳转到 第三方网站（比如木犀通行证）。</li>
+<li>木犀通行证 要求用户登录，然后询问”A 网站要求获得 xx 权限，你是否同意？”</li>
+<li>用户同意，木犀通行证 就会重定向回 A 网站，同时发回一个授权码（auth-code）。</li>
+<li>A 网站使用授权码，向 木犀通行证 请求令牌。</li>
+<li>木犀通行证 返回令牌.</li>
+<li>A 网站使用令牌，进一步拿到token。</li>
+</ol>
+<h3 id="具体实现第三方网站（通行证）"><a href="#具体实现第三方网站（通行证）" class="headerlink" title="具体实现第三方网站（通行证）"></a>具体实现第三方网站（通行证）</h3><ol>
+<li>在通行证写好对应接口<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="title">login</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; username, password, isChecked &#125; = <span class="built_in">this</span>.state;</span><br><span class="line">    <span class="keyword">let</span> client_id = getQueryVariable(<span class="string">&#x27;client_id&#x27;</span>);</span><br><span class="line">    <span class="keyword">if</span> (username &amp;&amp; password) &#123;</span><br><span class="line">      <span class="keyword">const</span> res = <span class="keyword">await</span> Service.getOauthCode(username, password, client_id);</span><br><span class="line">      <span class="built_in">console</span>.log(res);</span><br><span class="line">      <span class="keyword">if</span> (res.code === <span class="number">20102</span>) &#123;</span><br><span class="line">        <span class="built_in">this</span>.alert(<span class="string">&#x27;用户不存在&#x27;</span>);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (res.code === <span class="number">20301</span>) &#123;</span><br><span class="line">        <span class="built_in">this</span>.alert(<span class="string">&#x27;密码错误&#x27;</span>);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (res.code === <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">this</span>.alert(<span class="string">&#x27;登录成功，正在跳转&#x27;</span>);</span><br><span class="line">        <span class="keyword">let</span> accessCode = res.data.code;</span><br><span class="line">        <span class="built_in">console</span>.log(accessCode);</span><br><span class="line">        <span class="comment">//如果用户勾选下次自动登录，保存此次登录信息</span></span><br><span class="line">        <span class="keyword">if</span> (isChecked) &#123;</span><br><span class="line">          <span class="built_in">localStorage</span>.setItem(<span class="string">&#x27;username&#x27;</span>, username);</span><br><span class="line">          <span class="built_in">localStorage</span>.setItem(<span class="string">&#x27;password&#x27;</span>, password);</span><br><span class="line">          <span class="built_in">localStorage</span>.setItem(<span class="string">&#x27;checked&#x27;</span>, isChecked);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//跳转到工作台</span></span><br><span class="line">        <span class="keyword">let</span> landing = getCookie(<span class="string">&#x27;landing&#x27;</span>);</span><br><span class="line">        <span class="keyword">if</span> (landing === <span class="string">&#x27;&#x27;</span>) &#123;</span><br><span class="line">          landing = getQueryVariable(<span class="string">&#x27;landing&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">window</span>.location.href =</span><br><span class="line">          <span class="comment">// eslint-disable-next-line no-useless-concat</span></span><br><span class="line">          <span class="string">&#x27;http://&#x27;</span> + landing + <span class="string">&#x27;/?accessCode=&#x27;</span> + accessCode;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">this</span>.alert(<span class="string">&#x27;请输入用户名和密码&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">getOauthCode</span>(<span class="params">username, password, client_id</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> Fetch(<span class="string">`/auth/api/oauth?response_type=code&amp;client_id=<span class="subst">$&#123;client_id&#125;</span>`</span>, &#123;</span><br><span class="line">      <span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>,</span><br><span class="line">      <span class="attr">data</span>: &#123;</span><br><span class="line">        <span class="attr">username</span>: username,</span><br><span class="line">        <span class="attr">password</span>: btoa(password)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></li>
+<li>在通行证中我们用url保留了一个landing参数，这个参数用来在拿到auth_code后跳转回原网站</li>
+<li>用户访问通行证时同时需要带上一个client_id参数，用来验证</li>
+<li>这样我们的通行证基本就完成了，现在去看看如何调用通行证最终拿到token</li>
+</ol>
+<h3 id="如何调用通行证"><a href="#如何调用通行证" class="headerlink" title="如何调用通行证"></a>如何调用通行证</h3><ol>
+<li><p>先看工作台的部分代码</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">React.useEffect(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> code = <span class="keyword">new</span> URL(<span class="built_in">window</span>.location.href).searchParams.get(<span class="string">&#x27;accessCode&#x27;</span>)</span><br><span class="line">        <span class="keyword">const</span> token = <span class="built_in">localStorage</span>.getItem(<span class="string">&#x27;token&#x27;</span>)</span><br><span class="line">        <span class="keyword">const</span> landing = <span class="string">`<span class="subst">$&#123;<span class="built_in">window</span>.location.host&#125;</span>/landing`</span></span><br><span class="line">        <span class="keyword">if</span> (!token &amp;&amp; !code) &#123;</span><br><span class="line">            <span class="built_in">window</span>.location.href = <span class="string">`http://pass.muxi-tech.xyz/#/login_auth?landing=<span class="subst">$&#123;landing&#125;</span>&amp;client_id=51f03389-2a18-4941-ba73-c85d08201d42`</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, [])</span><br></pre></td></tr></table></figure></li>
+<li><p>我们将这个代码写在路由顶层，保证存在token</p>
+</li>
+<li><p>在这里我们先试着从url获取code 从localStorage获取token</p>
+</li>
+<li><p>如果检查到有token或者code就什么也不做，如果二者都没有就跳转到通行证登录请求一个code，通行证那边会自动带着code跳转会我们已经写好的landing路由</p>
+</li>
+<li><p>看一下landing部分代码</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> oauth_code = getUrlParameter(<span class="string">&#x27;accessCode&#x27;</span>)</span><br><span class="line">    <span class="keyword">const</span> history = useHistory()</span><br><span class="line">    React.useEffect(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// eslint-disable-next-line camelcase</span></span><br><span class="line">        <span class="keyword">if</span> (oauth_code) &#123;</span><br><span class="line">            API.auth.postLogin.request(<span class="string">&#x27;&#x27;</span>, &#123; oauth_code &#125;).then(<span class="function">(<span class="params">response</span>) =&gt;</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (response.code === <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="keyword">const</span> tokenWorkbench = response.data.token</span><br><span class="line">                    <span class="built_in">localStorage</span>.setItem(<span class="string">&#x27;token&#x27;</span>, tokenWorkbench)</span><br><span class="line">                    history.push(<span class="string">&#x27;/project&#x27;</span>)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, [])</span><br></pre></td></tr></table></figure></li>
+<li><p>带着code到landing后就继续用code请求token，拿到token然后存在localStorage里面，再跳转到project首页面，我们的登录就完成了</p>
+</li>
+</ol>
+
       
     </div><!-- .entry-content -->
 
     <footer class="entry-meta">
     <a href="/2021/10/14/auth/">
-    <time datetime="2021-10-14T12:59:55.736Z" class="entry-date">
+    <time datetime="2021-10-14T13:46:38.393Z" class="entry-date">
         2021-10-14
     </time>
 </a>
@@ -106,10 +143,8 @@
 <nav class="nav-single">
     <h3 class="assistive-text">文章导航</h3>
     
-        <span class="nav-previous"><a href="/2021/10/14/10.11/" rel="prev"><span class="meta-nav">←</span> 关于原型的分享</a></span>
     
-    
-        <span class="nav-next"><a href="/2021/10/12/hello-world/" rel="next">Hello World <span class="meta-nav">→</span></a></span>
+        <span class="nav-next"><a href="/2021/10/14/4.11/" rel="next">关于网络请求的分享 <span class="meta-nav">→</span></a></span>
     
 </nav><!-- .nav-single -->
 
@@ -140,6 +175,14 @@
       <ul>
         
           <li>
+            <a href="/2021/10/14/auth/">关于oauth登录</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/14/4.11/">关于网络请求的分享</a>
+          </li>
+        
+          <li>
             <a href="/2021/10/14/11.21/">关于机试题的基础分享</a>
           </li>
         
@@ -149,14 +192,6 @@
         
           <li>
             <a href="/2021/10/14/12.11/">构建web网页的技术</a>
-          </li>
-        
-          <li>
-            <a href="/2021/10/14/11.20/">html与css</a>
-          </li>
-        
-          <li>
-            <a href="/2021/10/14/4.11/">(no title)</a>
           </li>
         
       </ul>
